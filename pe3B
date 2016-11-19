@@ -1,0 +1,58 @@
+function build_BAE_tree(bae_list) {
+    function without_last(xs) {
+        if (length(xs) === 1) {
+            return [];
+        } else {
+            return pair(head(xs), without_last(tail(xs)));
+        }
+    }
+
+    function without_brackets(xs) {
+        if (length(xs) < 3) {
+            return xs;
+        } else {
+            return without_last(tail(xs));
+        }
+    }
+
+    function left_operand(xs) {
+        function helper(xs) {
+            if (head(xs) === "(") {
+                open = open + 1;
+            } else if (head(xs) === ")") {
+                close = close + 1;
+            } else {
+                ;
+            }
+
+            if (open === close) {
+                return list(head(xs));
+            } else {
+                return pair(head(xs), helper(tail(xs)));
+            }
+        }
+
+        var open = 0;
+        var close = 0;
+
+        return without_brackets(helper(xs));
+    }
+
+    function tail_n(xs, n) {
+        return n === 0 ? xs : pair(head(xs), tail_n(tail(xs), n - 1));
+    }
+
+    function right_operand(xs) {
+        return tail_n(xs, length(left_operand(xs)) + 3);
+    }
+
+    if (!is_list(bae_list)) {
+        return bae_list;
+    } else {
+        var three_parts = without_brackets(bae_list);
+        var left = left_operand(three_parts);
+        var right = right_operand(three_parts);
+        var operator = head(tail_n(three_parts, length(left) + 2));
+        return list(left, operator, right);
+    }
+}
